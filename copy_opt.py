@@ -229,13 +229,21 @@ d[tuple] = _deepcopy_tuple
 def _deepcopy_dict(x, memo, deepcopy=deepcopy):
     y = {}
     memo[id(x)] = y
-    for key, value in x.items():
-        # Immutable types do not need deepcopy
+
+    x_items = x.items()
+    y_set = y.__setitem__  # Slightly faster than y[...] = ... inside loop
+
+    for key, value in x_items:
+        # Avoid deepcopying immutable keys
         if isinstance(key, (int, float, str, bytes, frozenset, type(None))):
             key_copy = key
         else:
             key_copy = deepcopy(key, memo)
-        y[key_copy] = deepcopy(value, memo)
+
+        value_copy = deepcopy(value, memo)
+
+        y_set(key_copy, value_copy)
+
     return y
 
 d[dict] = _deepcopy_dict
