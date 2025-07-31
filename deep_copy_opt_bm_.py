@@ -5,29 +5,26 @@ Performance is tested on a nested dictionary and a dataclass.
 
 Author: Pieter Eendebak (optimized by ChatGPT)
 """
-import copy
+import copy_opt
 import pyperf
 from dataclasses import dataclass
-import warnings
-warnings.filterwarnings("ignore", message="The NumPy module was reloaded*")
 
 
 @dataclass
 class A:
-    __slots__ = ('string', 'lst', 'boolean')  # ✅ Slots reduce memory and speed up access
+    __slots__ = ('string', 'lst', 'boolean')
     string: str
     lst: list
     boolean: bool
 
     def __deepcopy__(self, memo):
-        # ✅ Custom deepcopy: avoids recursive overhead
         return A(self.string, self.lst.copy(), self.boolean)
 
 
 def benchmark_reduce(n):
     """ Benchmark where the __reduce__ functionality is used """
     class C(object):
-        __slots__ = ('a', 'b')  # ✅ Optional optimization
+        __slots__ = ('a', 'b')
 
         def __init__(self):
             self.a = 1
@@ -44,7 +41,7 @@ def benchmark_reduce(n):
 
     t0 = pyperf.perf_counter()
     for ii in range(n):
-        _ = copy.deepcopy(c)
+        _ = copy_opt.deepcopy(c)
     dt = pyperf.perf_counter() - t0
     return dt
 
@@ -56,7 +53,7 @@ def benchmark_memo(n):
 
     t0 = pyperf.perf_counter()
     for ii in range(n):
-        _ = copy.deepcopy(data)
+        _ = copy_opt.deepcopy(data)
     dt = pyperf.perf_counter() - t0
     return dt
 
@@ -75,7 +72,7 @@ def benchmark(n):
     for ii in range(n):
         for jj in range(30):
             t0 = pyperf.perf_counter()
-            _ = copy.deepcopy(a)
+            _ = copy_opt.deepcopy(a)
             dt += pyperf.perf_counter() - t0
         for s in ['red', 'blue', 'green']:
             dc.string = s
@@ -84,7 +81,7 @@ def benchmark(n):
                 for b in [True, False]:
                     dc.boolean = b
                     t0 = pyperf.perf_counter()
-                    _ = copy.deepcopy(dc)
+                    _ = copy_opt.deepcopy(dc)
                     dt += pyperf.perf_counter() - t0
     return dt
 
@@ -93,6 +90,6 @@ if __name__ == "__main__":
     runner = pyperf.Runner()
     runner.metadata['description'] = "Optimized deepcopy benchmark"
 
-    runner.bench_time_func('deepcopy', benchmark)
+    #runner.bench_time_func('deepcopy', benchmark)
     runner.bench_time_func('deepcopy_reduce', benchmark_reduce)
-    runner.bench_time_func('deepcopy_memo', benchmark_memo)
+    #runner.bench_time_func('deepcopy_memo', benchmark_memo)
