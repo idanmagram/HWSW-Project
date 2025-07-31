@@ -142,7 +142,6 @@ def deepcopy(x, memo=None, _nil=[]):
         return y
 
     cls = type(x)
-    print("type(cls)", cls)
 
     copier = _deepcopy_dispatch.get(cls)
     if copier is not None:
