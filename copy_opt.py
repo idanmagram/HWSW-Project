@@ -137,8 +137,15 @@ def deepcopy(x, memo=None, _nil=[]):
         memo = {}
 
     d = id(x)
+
+    if hasattr(deepcopy, "_last_id") and deepcopy._last_id == d:
+        #print("hi ",x)
+        return deepcopy._last_obj
+    #print("deep copy ",x)
     y = memo.get(d, _nil)
     if y is not _nil:
+        deepcopy._last_id = d
+        deepcopy._last_obj = y
         return y
 
     cls = type(x)
@@ -201,11 +208,12 @@ d[weakref.ref] = _deepcopy_atomic
 d[property] = _deepcopy_atomic
 
 def _deepcopy_list(x, memo, deepcopy=deepcopy):
-    y = []
+    y = [None] * len(x)  # Preallocate list
     memo[id(x)] = y
-    append = y.append
-    for a in x:
-        append(deepcopy(a, memo))
+
+    for i, a in enumerate(x):
+        y[i] = deepcopy(a, memo)
+
     return y
 d[list] = _deepcopy_list
 
