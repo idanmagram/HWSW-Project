@@ -225,6 +225,7 @@ def _deepcopy_tuple(x, memo, deepcopy=deepcopy):
         y = x
     return y
 d[tuple] = _deepcopy_tuple
+_IMMUTABLE_KEY_TYPES = (int, float, str, bytes, frozenset, type(None))
 
 def _deepcopy_dict(x, memo, deepcopy=deepcopy):
     y = {}
@@ -232,7 +233,7 @@ def _deepcopy_dict(x, memo, deepcopy=deepcopy):
     x_items = x.items()
     for key, value in x_items:
         # Immutable types do not need deepcopy
-        if isinstance(key, (int, float, str, bytes, frozenset, type(None))):
+        if isinstance(key, _IMMUTABLE_KEY_TYPES):
             key_copy = key
         else:
             key_copy = deepcopy(key, memo)
