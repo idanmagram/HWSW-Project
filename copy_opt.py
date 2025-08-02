@@ -230,14 +230,25 @@ _IMMUTABLE_KEY_TYPES = (int, float, str, bytes, frozenset, type(None))
 def _deepcopy_dict(x, memo, deepcopy=deepcopy):
     y = {}
     memo[id(x)] = y
-    x_items = x.items()
-    for key, value in x_items:
-        # Immutable types do not need deepcopy
+
+    # --- Optimization 2: Cache the dictionary's setter method ---
+    # Caching `__setitem__` avoids repeated method lookups inside the loop.
+    # Calling `y_setter` is faster than executing `y[...] = ...`.
+    y_setter = y.__setitem__
+
+    for key, value in x.items():
+        # Your efficient check is preserved, now using the constant tuple.
         if isinstance(key, _IMMUTABLE_KEY_TYPES):
             key_copy = key
         else:
             key_copy = deepcopy(key, memo)
-        y[key_copy] = deepcopy(value, memo)
+
+        # The value is always deepcopied.
+        value_copy = deepcopy(value, memo)
+
+        # Use the cached setter method for a performance boost.
+        y_setter(key_copy, value_copy)
+
     return y
 
 d[dict] = _deepcopy_dict
