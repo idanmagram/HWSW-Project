@@ -83,6 +83,6 @@ def benchmark(n):
 if __name__ == "__main__":
     runner = pyperf.Runner()
     runner.metadata['description'] = "deepcopy benchmark"
-    #bench_session_result = runner.bench_time_func('deepcopy', benchmark)
-    #runner.bench_time_func('deepcopy_reduce', benchmark_reduce)
+    bench_session_result = runner.bench_time_func('deepcopy', benchmark)
+    runner.bench_time_func('deepcopy_reduce', benchmark_reduce)
     runner.bench_time_func('deepcopy_memo', benchmark_memo)
