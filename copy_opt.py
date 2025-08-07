@@ -137,7 +137,7 @@ def deepcopy(x, memo=None, _nil=[]):
         memo = {}
 
     d = id(x)
-    print("id is ",id)
+    #print("id is ",id)
 
     if hasattr(deepcopy, "_last_id") and deepcopy._last_id == d:
         #print("hi ",x)
