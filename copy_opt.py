@@ -188,8 +188,8 @@ def deepcopy(x, memo=None, _nil=[]):
         _keep_alive(x, memo) # Make sure x lives at least as long as d
     #else:
     #    print("wow ",x)
-    deepcopy._last_id = d
-    deepcopy._last_obj = y
+    #deepcopy._last_id = d
+    #deepcopy._last_obj = y
     return y
 
 _deepcopy_dispatch = d = {}
