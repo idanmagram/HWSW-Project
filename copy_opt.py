@@ -134,20 +134,20 @@ def deepcopy(x, memo=None, _nil=[]):
     """
 
     if memo is None:
+        deepcopy._last_id = 0
+        deepcopy._last_obj = 0
         memo = {}
 
     d = id(x)
     #print("id is ",id)
-    if isinstance(x, _IMMUTABLE_KEY_TYPES):
-        return x
-    #if hasattr(deepcopy, "_last_id") and deepcopy._last_id == d:
-    #    return deepcopy._last_obj
 
-    #print("deep copy ",x)
+    if hasattr(deepcopy, "_last_id") and deepcopy._last_id == d:
+        return deepcopy._last_obj
+
     y = memo.get(d, _nil)
     if y is not _nil:
-        #deepcopy._last_id = d
-        #deepcopy._last_obj = y
+        deepcopy._last_id = d
+        deepcopy._last_obj = y
         #print("found ",y)
         return y
 
@@ -187,8 +187,7 @@ def deepcopy(x, memo=None, _nil=[]):
     if y is not x:
         memo[d] = y
         _keep_alive(x, memo) # Make sure x lives at least as long as d
-    #else:
-    #    print("wow ",x)
+
     deepcopy._last_id = d
     deepcopy._last_obj = y
     return y
