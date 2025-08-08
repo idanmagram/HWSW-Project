@@ -134,21 +134,20 @@ def deepcopy(x, memo=None, _nil=[]):
     """
 
     if memo is None:
-        deepcopy._last_id = 0
-        deepcopy._last_obj = 0
+        deepcopy._last_id = None
+        deepcopy._last_obj = None
         memo = {}
 
     d = id(x)
-    #print("id is ",id)
 
-    if hasattr(deepcopy, "_last_id") and deepcopy._last_id == d:
+    if deepcopy._last_id == d:
         return deepcopy._last_obj
+
 
     y = memo.get(d, _nil)
     if y is not _nil:
         deepcopy._last_id = d
         deepcopy._last_obj = y
-        #print("found ",y)
         return y
 
     cls = type(x)
