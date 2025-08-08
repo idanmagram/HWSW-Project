@@ -31,13 +31,10 @@ def benchmark_reduce(n):
             self.b = 2
 
         def __reduce__(self):
-            # (callable, args, state_as_tuple)
-            return (C, (), (self.a, self.b))
+            return (C, (), self.__dict__)
 
         def __setstate__(self, state):
-            a, b = state
-            self.a = a
-            self.b = b
+            self.__dict__.update(state)
 
     c = C()
     dc = copy.deepcopy
