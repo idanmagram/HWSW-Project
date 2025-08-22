@@ -37,7 +37,7 @@ def benchmark_reduce(n):
             self.__dict__.update(state)
 
     c = C()
-
+    print("n is ",n)
     t0 = pyperf.perf_counter()
     for ii in range(n):
         _ = copy_opt.deepcopy(c)

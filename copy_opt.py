@@ -250,7 +250,11 @@ def _deepcopy_dict(x, memo, deepcopy=deepcopy):
             key_copy = key
         else:
             key_copy = deepcopy(key, memo)
-        y[key_copy] = deepcopy(value, memo)
+        if isinstance(value, _IMMUTABLE_KEY_TYPES):
+            value_copy = value
+        else:
+            value_copy = deepcopy(value, memo)
+        y[key_copy] = value_copy
     return y
 
 d[dict] = _deepcopy_dict
