@@ -21,9 +21,9 @@ class A:
         return A(self.string, self.lst.copy(), self.boolean)
 
 
+
 def benchmark_reduce(n):
-    """Benchmark deepcopy with tuple state (faster than dict state)."""
-    import copy, pyperf
+    """ Benchmark where the __reduce__ functionality is used """
 
     class C(object):
         def __init__(self):
@@ -31,24 +31,18 @@ def benchmark_reduce(n):
             self.b = 2
 
         def __reduce__(self):
-            # (callable, args, state_as_tuple)
-            return (C, (), (self.a, self.b))
+            return (C, (), self.__dict__)
 
         def __setstate__(self, state):
-            a, b = state
-            self.a = a
-            self.b = b
+            self.__dict__.update(state)
 
     c = C()
-    dc = copy.deepcopy
-    rng = range
 
     t0 = pyperf.perf_counter()
-    for _ in rng(n):
-        _ = dc(c)
+    for ii in range(n):
+        _ = copy_opt.deepcopy(c)
     dt = pyperf.perf_counter() - t0
     return dt
-
 
 
 def benchmark_memo(n):
@@ -95,6 +89,6 @@ if __name__ == "__main__":
     runner = pyperf.Runner()
     runner.metadata['description'] = "Optimized deepcopy benchmark"
 
-    runner.bench_time_func('deepcopy', benchmark)
+    #runner.bench_time_func('deepcopy', benchmark)
     runner.bench_time_func('deepcopy_reduce', benchmark_reduce)
-    runner.bench_time_func('deepcopy_memo', benchmark_memo)
+    #runner.bench_time_func('deepcopy_memo', benchmark_memo)
