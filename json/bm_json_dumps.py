@@ -25,15 +25,30 @@ UNICODE_HEAVY = (UNICODE_HEAVY_DATA, 1000)
 
 CASES = ['EMPTY', 'SIMPLE', 'NESTED', 'HUGE', 'UNICODE_HEAVY']
 
+
 def bench_json_dumps(data):
     for obj, count_it in data:
         for _ in count_it:
             json.dumps(obj)
 
+def bench_json_dumps_opt(data):
+    for obj, count_it in data:
+        for _ in count_it:
+            json.dumps(obj)
+
+def bench_orjson_dumps(data):
+    for obj, count_it in data:
+        for _ in count_it:
+            json.dumps(obj)
+
+OPT_LEVELS = {"0" : bench_json_dumps, "1" : bench_json_dumps_opt, "2" : bench_orjson_dumps}
+
 
 def add_cmdline_args(cmd, args):
     if args.cases:
         cmd.extend(("--cases", args.cases))
+    if args.opt_level:
+        cmd.extend(("--opt_level", args.opt_level))
 
 
 def main():
@@ -41,6 +56,9 @@ def main():
     runner.argparser.add_argument("--cases",
                                   help="Comma separated list of cases. Available cases: %s. By default, run all cases."
                                        % ', '.join(CASES))
+    runner.argparser.add_argument("--opt_level",
+                                  help="Level of optimization. Available cases: %s. By default, run unoptimized."
+                                       % ', '.join(list(OPT_LEVELS.keys())))
     runner.metadata['description'] = "Benchmark json.dumps()"
 
     args = runner.parse_args()
@@ -56,12 +74,17 @@ def main():
     else:
         cases = CASES
 
+    bench_function = bench_json_dumps
+    if args.opt_level:
+        assert args.opt_level in OPT_LEVELS, f"{args.opt_level} is not a valid argument"
+        bench_function = OPT_LEVELS[args.opt_level]
+
     data = []
     for case in cases:
         obj, count = globals()[case]
         data.append((obj, range(count)))
 
-    runner.bench_func('json_dumps', bench_json_dumps, data)
+    runner.bench_func('json_dumps', bench_function, data)
 
 
 if __name__ == '__main__':
