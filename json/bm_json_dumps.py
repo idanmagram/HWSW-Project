@@ -13,8 +13,17 @@ NESTED_DATA = {'key1': 0, 'key2': SIMPLE[0], 'key3': 'value', 'key4': SIMPLE[0],
 NESTED = (NESTED_DATA, 1000)
 HUGE = ([NESTED[0]] * 1000, 1)
 
-CASES = ['EMPTY', 'SIMPLE', 'NESTED', 'HUGE']
+UNICODE_HEAVY_DATA =  {
+    "chinese_simplified": "这是中文内容，包含汉字和标点符号。我们正在测试JSON性能优化技术。" * 50,
+    "chinese_traditional": "這是繁體中文內容，測試JSON編碼效能。包含複雜漢字結構和語法。" * 50,
+    "arabic": "هذا محتوى عربي يحتوي على نصوص وعلامات ترقيم مختلفة لاختبار الأداء." * 50,
+    "hebrew": "זה תוכן בעברית הכולל אותיות וסימני פיסוק שונים לבדיקת ביצועים." * 50,
+    "russian": "Это русский текст с кириллическими символами для тестирования производительности JSON." * 50,
+    "japanese_hiragana": "これはひらがなのテキストです。JSONのパフォーマンステストに使用されています。" * 40,
+}
+UNICODE_HEAVY = (UNICODE_HEAVY_DATA, 1000)
 
+CASES = ['EMPTY', 'SIMPLE', 'NESTED', 'HUGE', 'UNICODE_HEAVY']
 
 def bench_json_dumps(data):
     for obj, count_it in data:
