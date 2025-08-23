@@ -1,4 +1,5 @@
 import json
+import orjson
 import sys
 
 import pyperf
@@ -32,14 +33,15 @@ def bench_json_dumps(data):
             json.dumps(obj)
 
 def bench_json_dumps_opt(data):
+    encoder = json.JSONEncoder(separators=(',', ':'), ensure_ascii=False)
     for obj, count_it in data:
         for _ in count_it:
-            json.dumps(obj)
+            encoder.encode(obj)
 
 def bench_orjson_dumps(data):
     for obj, count_it in data:
         for _ in count_it:
-            json.dumps(obj)
+            orjson.dumps(obj)
 
 OPT_LEVELS = {"0" : bench_json_dumps, "1" : bench_json_dumps_opt, "2" : bench_orjson_dumps}
 
