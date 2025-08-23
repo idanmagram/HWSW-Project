@@ -127,6 +127,9 @@ if PyStringMap is not None:
 
 del d, t
 
+# Tunable size for the tiny L1 cache
+_L1_SIZE = 8
+
 def deepcopy(x, memo=None, _nil=[]):
     """Deep copy operation on arbitrary Python objects.
 
@@ -134,24 +137,47 @@ def deepcopy(x, memo=None, _nil=[]):
     """
 
     if memo is None:
+        # reset per top-level call (no cross-call contamination)
+        memo = {}
         deepcopy._last_id = None
         deepcopy._last_obj = None
-        memo = {}
+        deepcopy._l1_ids = [None] * _L1_SIZE
+        deepcopy._l1_objs = [None] * _L1_SIZE
+        deepcopy._l1_pos = 0
+    else:
+        # ensure L1 exists even if caller supplied a memo
+        if not hasattr(deepcopy, "_l1_ids"):
+            deepcopy._l1_ids = [None] * _L1_SIZE
+            deepcopy._l1_objs = [None] * _L1_SIZE
+            deepcopy._l1_pos = 0
 
     d = id(x)
 
+    # 0) Single-entry fast path (very common when truly consecutive)
     if deepcopy._last_id == d:
         return deepcopy._last_obj
 
+    # 1) Tiny L1 cache probe (linear scan over 4–8 slots)
+    l1_ids  = deepcopy._l1_ids
+    l1_objs = deepcopy._l1_objs
+    for i in range(len(l1_ids)):
+        if l1_ids[i] == d:
+            return l1_objs[i]
 
+    # 2) Standard memo dictionary
     y = memo.get(d, _nil)
     if y is not _nil:
+        # update both L1 and single-entry cache
+        p = deepcopy._l1_pos
+        l1_ids[p]  = d
+        l1_objs[p] = y
+        deepcopy._l1_pos = (p + 1) % len(l1_ids)
         deepcopy._last_id = d
         deepcopy._last_obj = y
         return y
 
+    # 3) Normal dispatch
     cls = type(x)
-
     copier = _deepcopy_dispatch.get(cls)
     if copier is not None:
         y = copier(x, memo)
@@ -175,21 +201,27 @@ def deepcopy(x, memo=None, _nil=[]):
                         if reductor:
                             rv = reductor()
                         else:
-                            raise Error(
-                                "un(deep)copyable object of type %s" % cls)
+                            raise Error("un(deep)copyable object of type %s" % cls)
                 if isinstance(rv, str):
                     y = x
                 else:
                     y = _reconstruct(x, memo, *rv)
 
-    # If is its own copy, don't memoize.
+    # 4) Memoize non-identity copies (CPython semantics)
     if y is not x:
         memo[d] = y
-        _keep_alive(x, memo) # Make sure x lives at least as long as d
+        _keep_alive(x, memo)  # ensure x lives at least as long as d
+
+    # 5) Update caches and return
+    p = deepcopy._l1_pos
+    l1_ids[p]  = d
+    l1_objs[p] = y
+    deepcopy._l1_pos = (p + 1) % len(l1_ids)
 
     deepcopy._last_id = d
     deepcopy._last_obj = y
     return y
+
 
 _deepcopy_dispatch = d = {}
 
