@@ -340,6 +340,7 @@ def _reconstruct(x, memo, func, args,
     if dictiter is not None:
         if deep:
             y.update({deepcopy(k, memo): deepcopy(v, memo) for (k, v) in dictiter})
+            print("dictier")
         else:
             y.update(dictiter)
 
