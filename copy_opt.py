@@ -136,37 +136,18 @@ def deepcopy(x, memo=None, _nil=[]):
     if memo is None:
         deepcopy._last_id = None
         deepcopy._last_obj = None
-        # init 4-entry L1 cache
-        deepcopy._last4_ids = [None, None, None, None]
-        deepcopy._last4_objs = [None, None, None, None]
         memo = {}
-    else:
-        # ensure L1 exists (e.g., if memo supplied by caller)
-        if not hasattr(deepcopy, "_last4_ids"):
-            deepcopy._last4_ids = [None, None, None, None]
-            deepcopy._last4_objs = [None, None, None, None]
 
     d = id(x)
 
-    # 1-entry fast path
     if deepcopy._last_id == d:
         return deepcopy._last_obj
 
-    # 4-entry L1 probe
-    ids = deepcopy._last4_ids
-    objs = deepcopy._last4_objs
-    for i in range(4):
-        if ids[i] == d:
-            return objs[i]
 
-    # memo lookup
     y = memo.get(d, _nil)
     if y is not _nil:
-        # update caches
         deepcopy._last_id = d
         deepcopy._last_obj = y
-        ids[1:], objs[1:] = ids[:-1], objs[:-1]
-        ids[0], objs[0] = d, y
         return y
 
     cls = type(x)
@@ -204,15 +185,11 @@ def deepcopy(x, memo=None, _nil=[]):
     # If is its own copy, don't memoize.
     if y is not x:
         memo[d] = y
-        _keep_alive(x, memo)  # Make sure x lives at least as long as d
+        _keep_alive(x, memo) # Make sure x lives at least as long as d
 
-    # update caches and return
     deepcopy._last_id = d
     deepcopy._last_obj = y
-    ids[1:], objs[1:] = ids[:-1], objs[:-1]
-    ids[0], objs[0] = d, y
     return y
-
 
 _deepcopy_dispatch = d = {}
 
