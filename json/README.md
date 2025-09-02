@@ -6,10 +6,16 @@
 ### Running the Benchmark
 
 #### Standard JSON Encoder
-`perf record -F 999 -g --call-graph dwarf python3 bm_json_dumps.py --opt_level 0`
+`perf record -e cycles,instructions,cache-misses,cache-references -F 999 -g python3 bm_json_dumps.py --opt_level 0`
 
 #### Optimized Cache JSON Encoder
-`perf record -F 999 -g --call-graph dwarf python3 bm_json_dumps.py --opt_level 1`
+`perf record -e cycles,instructions,cache-misses,cache-references -F 999 -g python3 bm_json_dumps.py --opt_level 1`
 
 #### ORJSON library
-`perf record -F 999 -g --call-graph dwarf python3 bm_json_dumps.py --opt_level 2`
+`perf record -e cycles,instructions,cache-misses,cache-references -F 999 -g python3 bm_json_dumps.py --opt_level 2`
+
+### Creating Flamegraph
+`hotspot perf.data`
+
+### More detailed Flamegraph
+To get full stack, run perf record with `--call-graph dwarf`

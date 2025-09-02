@@ -3,6 +3,7 @@ import orjson
 import sys
 from optimized_json import FastCachedJSONEncoder
 import pyperf
+import gc
 
 
 EMPTY = ({}, 2000)
@@ -274,4 +275,6 @@ def main():
 
 
 if __name__ == '__main__':
+    gc.disable()
     main()
+    gc.enable()
