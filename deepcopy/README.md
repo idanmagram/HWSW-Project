@@ -1,6 +1,7 @@
 ## Deep Copy benchmarking
 
 git clone https://github.com/idanmagram/HWSW-Project.git
+
 cd HWSW-Project
 
 ### Running the Benchmark
