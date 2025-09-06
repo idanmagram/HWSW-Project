@@ -1,0 +1,4 @@
+how to make json loads better by feeding it bytes and avoiding escapes?
+how to make the json benchmark more stable, the standard deviation is too high
+Make a custom JSON encoder that better encodes repeating data, while maintaining the same exact output as the standard encode
+this encoder was in fact much slower than the standard encoder, can you write a simpler and faster version
